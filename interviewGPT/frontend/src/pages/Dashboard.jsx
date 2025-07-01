@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const [user, setUser] = useState({});
   const [interviews, setInterviews] = useState([]);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate(); // ✅ Correct
 
   const fetchData = async () => {
     try {
@@ -25,31 +28,6 @@ const Dashboard = () => {
   useEffect(() => {
     fetchData();
   }, []);
-
-  const handleGenerateInterview = async () => {
-    const role = prompt("Enter role to generate interview for:");
-    if (!role) return;
-
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.post(
-        "http://localhost:5000/api/interview/generate",
-        { role },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      alert("Interview generated successfully!");
-      fetchData(); // Refresh dashboard data
-    } catch (err) {
-      console.error("Interview generation failed:", err);
-      alert("Failed to generate interview.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-black text-white px-4 py-10 flex flex-col items-center">
@@ -71,14 +49,6 @@ const Dashboard = () => {
             <p className="text-sm mt-2 uppercase tracking-wider font-semibold text-gray-700">Total Interviews</p>
           </div>
 
-          <button
-            onClick={handleGenerateInterview}
-            disabled={loading}
-            className="w-full py-3 mt-4 sm:mt-0 bg-white text-black font-bold uppercase rounded-md hover:bg-gray-200 transition"
-          >
-            {loading ? "Generating..." : "Generate Interview"}
-          </button>
-        </div>
 
         {/* Interviews List */}
         <div className="bg-neutral-900 border border-white/10 rounded-2xl shadow-2xl p-6">
@@ -100,6 +70,14 @@ const Dashboard = () => {
           )}
         </div>
       </div>
+        <button
+            onClick={() => navigate('/generate')} // ✅ Correct
+            disabled={loading}
+            className="w-full py-3 mt-4 sm:mt-0 bg-white text-black font-bold uppercase rounded-md hover:bg-gray-200 transition"
+          >
+            {loading ? "Generating..." : "Generate Interview"}
+          </button>
+        </div>
     </div>
   );
 };
