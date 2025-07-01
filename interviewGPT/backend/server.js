@@ -6,6 +6,7 @@ const cors = require("cors");
 const authRoutes = require("./routes/auth");
 const interviewRoutes = require("./routes/interview");
 
+
 dotenv.config();
 
 const app = express();
@@ -20,6 +21,15 @@ mongoose.connect(process.env.MONGO_URI)
 app.get("/", (req, res) => {
   res.send("🚀 InterviewGPT server is live!");
 });
+
+try {
+  console.log("📂 Trying to load dashboard route...");
+  const dashboardRoutes = require('./routes/dashboard');
+  app.use("/api/dashboard", dashboardRoutes);
+  console.log("✅ dashboardRoutes registered");
+} catch (err) {
+  console.error("❌ Failed to load dashboard route:", err.message);
+}
 
 app.use("/api/auth", authRoutes);
 app.use("/api/interview", interviewRoutes);
