@@ -6,9 +6,10 @@ const Dashboard = () => {
   const [user, setUser] = useState({});
   const [interviews, setInterviews] = useState([]);
   const [stats, setStats] = useState({});
+  const [resumeRating, setResumeRating] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate(); // ✅ Correct
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     try {
@@ -20,6 +21,7 @@ const Dashboard = () => {
       setUser(res.data.user);
       setInterviews(res.data.interviews);
       setStats(res.data.stats);
+      setResumeRating(res.data.resumeRating);
     } catch (err) {
       console.error('Failed to load dashboard:', err);
     }
@@ -42,15 +44,22 @@ const Dashboard = () => {
           <p className="text-gray-400 text-sm">Joined: {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '...'}</p>
         </div>
 
-        {/* Stats & Button */}
+        {/* Stats & Resume Rating */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
           <div className="bg-white text-black p-6 rounded-2xl shadow-inner text-center border border-white/10">
             <h2 className="text-3xl font-bold">{stats.totalInterviews ?? 0}</h2>
             <p className="text-sm mt-2 uppercase tracking-wider font-semibold text-gray-700">Total Interviews</p>
           </div>
 
+          {resumeRating !== null && (
+            <div className="bg-purple-600 text-white p-6 rounded-2xl shadow-md text-center border border-white/10">
+              <h2 className="text-3xl font-bold">{resumeRating}/10</h2>
+              <p className="text-sm mt-2 uppercase tracking-wider font-semibold">Resume Rating</p>
+            </div>
+          )}
+        </div>
 
-        {/* Interviews List */}
+        {/* Recent Interviews */}
         <div className="bg-neutral-900 border border-white/10 rounded-2xl shadow-2xl p-6">
           <h3 className="text-2xl font-bold mb-4">Recent Interviews</h3>
 
@@ -69,22 +78,25 @@ const Dashboard = () => {
             </ul>
           )}
         </div>
-      </div>
-        <button
-            onClick={() => navigate('/generate')} // ✅ Correct
+
+        {/* Buttons */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+          <button
+            onClick={() => navigate('/generate')}
             disabled={loading}
-            className="w-full py-3 mt-4 sm:mt-0 bg-white text-black font-bold uppercase rounded-md hover:bg-gray-200 transition"
+            className="w-full py-3 bg-white text-black font-bold uppercase rounded-md hover:bg-gray-200 transition"
           >
             {loading ? "Generating..." : "Generate Interview"}
           </button>
-          <button
-             onClick={() => navigate("/upload-resume")}
-            className="w-full py-3 mt-4 sm:mt-0 bg-white text-black font-bold uppercase rounded-md hover:bg-gray-200 transition"
-           >
-            UPLOAD RESUME
-            </button>
 
+          <button
+            onClick={() => navigate("/upload-resume")}
+            className="w-full py-3 bg-white text-black font-bold uppercase rounded-md hover:bg-gray-200 transition"
+          >
+            Upload Resume
+          </button>
         </div>
+      </div>
     </div>
   );
 };

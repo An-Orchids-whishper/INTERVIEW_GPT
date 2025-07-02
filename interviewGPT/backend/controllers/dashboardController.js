@@ -23,10 +23,15 @@ const getDashboardData = async (req, res) => {
     const totalInterviews = await Interview.countDocuments({ userId });
     console.log("📊 totalInterviews:", totalInterviews);
 
+    const latestInterview = await Interview.findOne({ userId }).sort({ createdAt: -1 });
+
+
     res.status(200).json({
       user,
       interviews,
       stats: { totalInterviews },
+      resumeRating: latestInterview?.resumeRating || null,
+
     });
 
   } catch (error) {

@@ -1,5 +1,6 @@
 const pdfParse = require("pdf-parse");
 const axios = require("axios");
+const Interview = require("../models/Interview");
 
 exports.uploadResumeAndGenerateQuestions = async (req, res) => {
   try {
@@ -74,14 +75,22 @@ exports.reviewResume = async (req, res) => {
     const match = content.match(/rating.*?(\d{1,2})\/10/i);
     const rating = match ? parseInt(match[1]) : null;
 
+    // Save rating to latest interview document
+    await Interview.findOneAndUpdate(
+      { userId: req.user.id },
+      { $set: { resumeRating: rating } },
+      { sort: { createdAt: -1 } }
+    );
+
+    // ✅ Send response back to frontend
     res.status(200).json({
       success: true,
       review: content,
-      rating: rating
+      rating: rating,
     });
+
   } catch (error) {
     console.error("Resume review error:", error.response?.data || error.message);
     res.status(500).json({ error: "Failed to review resume" });
   }
 };
-

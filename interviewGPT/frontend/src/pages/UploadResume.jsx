@@ -6,6 +6,7 @@ const UploadResume = () => {
   const [role, setRole] = useState("");
   const [questions, setQuestions] = useState("");
   const [reviewResult, setReviewResult] = useState("");
+  const [rating, setRating] = useState(null);
   const [loading, setLoading] = useState(false);
 
   // 📤 Handle Interview Question Generation
@@ -37,7 +38,7 @@ const UploadResume = () => {
     }
   };
 
-  // 📋 Handle Resume Review
+  // 📋 Handle Resume Review + Rating
   const handleReview = async (e) => {
     e.preventDefault();
     if (!file) return alert("Upload a resume first.");
@@ -55,16 +56,24 @@ const UploadResume = () => {
       });
 
       setReviewResult(res.data.review);
+      setRating(res.data.rating); // ✅ capture rating
     } catch (err) {
       alert("Review failed.");
       console.error(err);
     }
   };
 
+  // 🎨 Dynamic rating color
+  const ratingColor =
+    rating >= 8 ? "text-green-400" : rating >= 5 ? "text-yellow-400" : "text-red-400";
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4">
       {/* Upload Form */}
-      <form onSubmit={handleUpload} className="bg-neutral-900 border border-white/10 p-6 rounded-2xl space-y-4 w-full max-w-md">
+      <form
+        onSubmit={handleUpload}
+        className="bg-neutral-900 border border-white/10 p-6 rounded-2xl space-y-4 w-full max-w-md"
+      >
         <h2 className="text-2xl font-bold">Upload Your Resume</h2>
 
         <input
@@ -103,6 +112,14 @@ const UploadResume = () => {
         <div className="mt-6 bg-neutral-900 p-6 rounded-xl border border-white/10 max-w-3xl w-full">
           <h2 className="text-xl font-bold mb-2">Resume Review:</h2>
           <pre className="text-gray-200 whitespace-pre-wrap">{reviewResult}</pre>
+        </div>
+      )}
+
+      {/* Resume Rating */}
+      {rating && (
+        <div className="mt-4 bg-green-900 p-4 rounded-xl border border-green-600 max-w-3xl w-full">
+          <h2 className="text-xl font-bold mb-2 text-green-300">AI Resume Rating:</h2>
+          <p className={`text-3xl font-extrabold ${ratingColor}`}>{rating} / 10</p>
         </div>
       )}
 
