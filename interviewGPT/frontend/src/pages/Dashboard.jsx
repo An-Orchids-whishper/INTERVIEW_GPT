@@ -77,6 +77,13 @@ const Dashboard = () => {
           >
             {loading ? "Generating..." : "Generate Interview"}
           </button>
+          <button
+             onClick={() => navigate("/upload-resume")}
+            className="w-full py-3 mt-4 sm:mt-0 bg-white text-black font-bold uppercase rounded-md hover:bg-gray-200 transition"
+           >
+            UPLOAD RESUME
+            </button>
+
         </div>
     </div>
   );

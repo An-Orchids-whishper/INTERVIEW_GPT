@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 const authRoutes = require("./routes/auth");
+const uploadRoutes = require("./routes/upload");
+
 const interviewRoutes = require("./routes/interview");
 
 
@@ -30,7 +32,7 @@ try {
 } catch (err) {
   console.error("❌ Failed to load dashboard route:", err.message);
 }
-
+app.use("/api/upload", uploadRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/interview", interviewRoutes);
 
