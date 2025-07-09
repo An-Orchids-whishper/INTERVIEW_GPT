@@ -1,9 +1,13 @@
 const express = require("express");
-const { generateInterview } = require("../controllers/interviewController");
+const router = express.Router();
 const auth = require("../middleware/auth");
 
-const router = express.Router();
+// Controllers
+const { generateInterview } = require("../controllers/interviewController");
+const { evaluateInterview } = require("../controllers/evaluationController");
 
-router.post("/generate", auth, generateInterview);
+// Routes
+router.post("/generate", auth, generateInterview);                 // for text-based generation
+router.post("/voice/evaluate", auth, evaluateInterview);           // for voice-based evaluation
 
 module.exports = router;

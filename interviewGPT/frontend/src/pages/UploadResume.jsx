@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const UploadResume = () => {
   const [file, setFile] = useState(null);
@@ -9,7 +10,9 @@ const UploadResume = () => {
   const [rating, setRating] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // 📤 Handle Interview Question Generation
+  const navigate = useNavigate();
+
+  // 📥 Upload Resume & Generate QnA
   const handleUpload = async (e) => {
     e.preventDefault();
     if (!file) return alert("Please select a file");
@@ -29,16 +32,25 @@ const UploadResume = () => {
         },
       });
 
-      setQuestions(res.data.questions);
+      const { questions, answers } = res.data;
+
+      setQuestions(questions.join("\n"));
+
+      // ✅ Store in localStorage with consistent keys
+      localStorage.setItem("resumeQuestions", JSON.stringify(questions));
+      localStorage.setItem("resumeAnswers", JSON.stringify(answers));
+      localStorage.setItem("resumeRole", role);
+
+      alert("✅ Questions and answers saved. You can now start your voice interview.");
     } catch (err) {
-      alert("Failed to generate questions.");
+      alert("❌ Failed to generate questions.");
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  // 📋 Handle Resume Review + Rating
+  // 📋 Review Resume
   const handleReview = async (e) => {
     e.preventDefault();
     if (!file) return alert("Upload a resume first.");
@@ -56,14 +68,13 @@ const UploadResume = () => {
       });
 
       setReviewResult(res.data.review);
-      setRating(res.data.rating); // ✅ capture rating
+      setRating(res.data.rating);
     } catch (err) {
-      alert("Review failed.");
+      alert("❌ Review failed.");
       console.error(err);
     }
   };
 
-  // 🎨 Dynamic rating color
   const ratingColor =
     rating >= 8 ? "text-green-400" : rating >= 5 ? "text-yellow-400" : "text-red-400";
 
@@ -105,6 +116,14 @@ const UploadResume = () => {
         className="w-full max-w-md mt-4 py-3 bg-purple-500 text-white font-bold uppercase rounded hover:bg-purple-600 transition"
       >
         Review Resume
+      </button>
+
+      {/* Voice Interview Button */}
+      <button
+        onClick={() => navigate("/voice-interview")}
+        className="w-full max-w-md mt-4 py-3 bg-blue-500 text-white font-bold uppercase rounded hover:bg-blue-600 transition"
+      >
+        Start Voice Interview
       </button>
 
       {/* Review Result */}
