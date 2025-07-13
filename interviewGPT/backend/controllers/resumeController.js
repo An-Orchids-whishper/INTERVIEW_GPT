@@ -2,7 +2,6 @@ const pdfParse = require("pdf-parse");
 const axios = require("axios");
 const Interview = require("../models/Interview");
 
-
 exports.uploadResumeAndGenerateQuestions = async (req, res) => {
   try {
     if (!req.file) {
@@ -10,7 +9,7 @@ exports.uploadResumeAndGenerateQuestions = async (req, res) => {
     }
 
     const pdfData = await pdfParse(req.file.buffer);
-    const extractedText = pdfData.text.slice(0, 3000); // Limit for token safety
+    const extractedText = pdfData.text.slice(0, 3000);
 
     const prompt = `
 Based on the following resume, generate 5 technical interview questions AND their ideal answers. 
@@ -25,6 +24,11 @@ Resume:
 ${extractedText}
     `;
 
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: "OpenRouter API key is missing in environment variables." });
+    }
+
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
       {
@@ -36,7 +40,7 @@ ${extractedText}
       },
       {
         headers: {
-          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          Authorization: `Bearer ${apiKey}`,
           "HTTP-Referer": "http://localhost:3000",
           "X-Title": "InterviewGPT App",
           "Content-Type": "application/json",
@@ -46,7 +50,6 @@ ${extractedText}
 
     const output = response.data.choices[0].message.content;
 
-    // 🔍 Extract Q&A pairs
     const qaPairs = output.split(/\nQ\d+:/).slice(1).map(block => {
       const [question, ...rest] = block.trim().split(/\nA\d+:/);
       const answer = rest.join(":").trim();
@@ -56,11 +59,9 @@ ${extractedText}
       };
     });
 
-    // Optional: Convert to just question list if needed separately
     const questionList = qaPairs.map(q => q.question);
     const answerList = qaPairs.map(q => q.answer);
 
-    // ✅ Save to DB
     const interview = new Interview({
       user: req.user.id,
       role: req.body.role || "Resume-Based Interview",
@@ -77,7 +78,7 @@ ${extractedText}
     });
 
   } catch (error) {
-    console.error("🔥 Resume upload error:", error.response?.data || error.message);
+    console.error("🔥 Resume upload error:", error?.response?.data || error.message || error);
     res.status(500).json({ error: "Failed to generate interview from resume" });
   }
 };
@@ -91,7 +92,15 @@ exports.reviewResume = async (req, res) => {
 
     const prompt = `Analyze the following resume and provide:
 1. A professional review covering strengths, weaknesses, and suggestions.
-2. A rating out of 10 based on technical skills, clarity, and relevance.\n\n${extractedText}`;
+2. A rating out of 10 based on technical skills, clarity, and relevance.
+
+Resume:
+${extractedText}`;
+
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: "OpenRouter API key is missing in environment variables." });
+    }
 
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
@@ -104,21 +113,19 @@ exports.reviewResume = async (req, res) => {
       },
       {
         headers: {
-          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          Authorization: `Bearer ${apiKey}`,
           "HTTP-Referer": "http://localhost:3000",
           "X-Title": "InterviewGPT App",
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         }
       }
     );
 
     const content = response.data.choices[0].message.content;
 
-    // Extract rating (e.g. "Rating: 8/10")
     const match = content.match(/rating.*?(\d{1,2})\/10/i);
     const rating = match ? parseInt(match[1]) : null;
 
-    // ✅ Fix: Update latest interview for the correct `user`
     await Interview.findOneAndUpdate(
       { user: req.user.id },
       { $set: { resumeRating: rating } },
@@ -132,7 +139,7 @@ exports.reviewResume = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Resume review error:", error.response?.data || error.message);
+    console.error("🔥 Resume review error:", error?.response?.data || error.message || error);
     res.status(500).json({ error: "Failed to review resume" });
   }
 };

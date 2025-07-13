@@ -1,74 +1,128 @@
-import { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import LoginIllustration from './login-illustration.svg'; // <- import SVG here
 
-export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [remember, setRemember] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
+      const res = await axios.post('http://localhost:5000/api/auth/login', {
         email,
         password,
       });
-      
-      localStorage.setItem("token", res.data.token);
-      alert("Login successful!");
-      navigate("/dashboard");
+      localStorage.setItem('token', res.data.token);
+      if (remember) {
+        localStorage.setItem('rememberMe', true);
+      }
+      navigate('/dashboard');
     } catch (err) {
-      alert("Login failed");
+      setError('Invalid credentials. Please try again.');
     }
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4">
-      <div className="bg-neutral-900 p-8 rounded-2xl shadow-2xl max-w-md w-full text-white space-y-6 border border-white/10">
-
-        <div>
-          <h2 className="text-4xl md:text-5xl font-serif leading-tight tracking-tight">
-            CONFIDENCE, STRATEGY <br /> & AI-POWERED PREPARATION
-          </h2>
-          <h3 className="text-2xl md:text-3xl font-extrabold uppercase mt-4 text-white">
-            Built with InterviewGPT
-          </h3>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-16 font-sans">
+      <div className="max-w-5xl w-full bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col md:flex-row">
+        {/* Illustration Side */}
+        <div className="md:w-1/2 bg-indigo-50 hidden md:flex items-center justify-center p-6">
+          <img src={LoginIllustration} alt="Login visual" className="max-w-xs w-full h-auto" />
         </div>
 
-        
-        <form onSubmit={handleLogin} className="space-y-4 pt-4">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
-            className="w-full px-4 py-3 bg-neutral-800 border border-white/20 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-white"
-          />
+        {/* Form Side */}
+        <div className="w-full md:w-1/2 p-8 space-y-6">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
+            <p className="text-gray-600 text-sm mt-2">Sign in to continue</p>
+          </div>
 
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            className="w-full px-4 py-3 bg-neutral-800 border border-white/20 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-white"
-          />
+          <form onSubmit={handleLogin} className="space-y-4">
+            {error && <p className="text-red-500 text-sm">{error}</p>}
 
-          <button
-            type="submit"
-            className="w-full py-3 bg-white text-black font-bold uppercase rounded-md hover:bg-gray-200 transition"
-          >
-            Login
-          </button>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Email address</label>
+              <input
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full px-4 py-2 mt-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
 
-           <button
-              onClick={() => navigate("/register")}
-              className="ml-2 underline text-white hover:text-gray-300 transition"
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Password</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full px-4 py-2 mt-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-3 text-sm text-gray-600 hover:text-gray-800"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center text-sm text-gray-600">
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={remember}
+                  onChange={() => setRemember(!remember)}
+                  className="accent-indigo-600"
+                />
+                Remember me
+              </label>
+              <button
+                type="button"
+                onClick={() => alert('Redirect to forgot password')}
+                className="text-indigo-600 hover:underline"
+              >
+                Forgot Password?
+              </button>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 transition"
             >
-              Create an account
+              Sign In
             </button>
-        </form>
+
+            <p className="text-sm text-gray-600 text-center">
+              Don’t have an account?{' '}
+              <span
+                onClick={() => navigate('/register')}
+                className="text-indigo-600 hover:underline cursor-pointer"
+              >
+                Join us now!
+              </span>
+            </p>
+
+            <p className="text-xs text-gray-400 text-center mt-4">
+              🔒 Use a strong password and never share your credentials.
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default Login;
