@@ -1,9 +1,11 @@
+// /src/pages/Landing.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import heroImg from "./undraw_ai-agent_pdkp.svg";
+import heroImg from "./undraw_ai-agent_pdkp.svg"; // Make sure this SVG exists
 
 const Landing = () => {
   const navigate = useNavigate();
+  const headline = ["Ace", "Your", "Interview", "with", "the", "Power", "of", "AI"];
 
   return (
     <div className="min-h-screen bg-white text-black font-serif overflow-hidden relative">
@@ -24,9 +26,19 @@ const Landing = () => {
       <main className="max-w-6xl mx-auto px-6 py-20 flex flex-col-reverse md:flex-row items-center gap-12">
         {/* Left Text */}
         <div className="flex-1 text-center md:text-left">
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight tracking-tight">
-            <span className="block">Ace Your Interview</span>
-            <span className="block text-indigo-600">with the Power of AI</span>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight flex flex-wrap gap-2">
+            {headline.map((word, i) => (
+              <span
+                key={i}
+                className="inline-block opacity-0 animate-fade-in-up"
+                style={{
+                  animationDelay: `${i * 0.1}s`,
+                  animationFillMode: "forwards",
+                }}
+              >
+                {word}
+              </span>
+            ))}
           </h2>
           <p className="text-gray-600 mb-8 leading-relaxed text-lg">
             Upload your resume, generate tailored questions, and practice with real-time AI feedback.
