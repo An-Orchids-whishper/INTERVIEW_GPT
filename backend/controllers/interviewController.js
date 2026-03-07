@@ -5,19 +5,24 @@ require("dotenv").config();
 exports.generateInterview = async (req, res) => {
   try {
     const { role } = req.body;
-    const userId = req.user.id;  // ✅ This was missing
+    const userId = req.user.id;  
 
     if (!role) {
       return res.status(400).json({ error: "Role is required in the request body." });
     }
 
-    const prompt = `Generate 5 concise interview questions for a ${role} position.`;
+    // 💡 TWEAKED PROMPT: Forces the AI to output exactly 5 lines with no introductory text
+    const prompt = `Generate exactly 5 concise interview questions for a ${role} position. 
+Do not include any introductory or concluding text. 
+Output each question on a new line.`;
+    
     console.log("🧠 Prompt to OpenRouter:", prompt);
 
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
       {
-        model: "mistralai/mistral-7b-instruct",
+        // 🚀 UPDATED MODEL HERE
+        model: "arcee-ai/trinity-large-preview:free", 
         messages: [
           {
             role: "system",
@@ -40,7 +45,12 @@ exports.generateInterview = async (req, res) => {
     );
 
     const questionText = response.data.choices[0].message.content;
-    const questions = questionText.split(/\n+/).filter(q => q.trim() !== "");
+    
+    // Parses the text, removes empty lines, and cleans up any leading numbers (like "1. ")
+    const questions = questionText
+      .split(/\n+/)
+      .filter(q => q.trim() !== "")
+      .map(q => q.replace(/^\d+\.\s*/, '').trim()); // Clean up list numbers
 
     const interview = new Interview({
       userId,   
