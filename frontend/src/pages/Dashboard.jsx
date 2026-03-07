@@ -10,12 +10,13 @@ const Dashboard = () => {
   const [resumeRating, setResumeRating] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const API_BASE_URL = "https://interview-backend-2vew.onrender.com";
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('http://localhost:5000/api/dashboard', {
+        const res = await axios.get(`${API_BASE_URL}/api/dashboard`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 

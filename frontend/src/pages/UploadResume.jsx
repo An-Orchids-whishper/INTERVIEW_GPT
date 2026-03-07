@@ -12,6 +12,9 @@ const UploadResume = () => {
 
   const navigate = useNavigate();
 
+  // 1. Aapka Live Backend URL
+  const API_BASE_URL = "https://interview-backend-2vew.onrender.com";
+
   // 📥 Upload Resume & Generate QnA
   const handleUpload = async (e) => {
     e.preventDefault();
@@ -25,7 +28,8 @@ const UploadResume = () => {
       setLoading(true);
       const token = localStorage.getItem("token");
 
-      const res = await axios.post("http://localhost:5000/api/upload/resume", formData, {
+      // 2. Localhost changed to Live URL with backticks
+      const res = await axios.post(`${API_BASE_URL}/api/upload/resume`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -33,17 +37,16 @@ const UploadResume = () => {
       });
 
       const { questions, answers } = res.data;
-
       setQuestions(questions.join("\n"));
 
-      // ✅ Store in localStorage with consistent keys
+      // ✅ Store in localStorage
       localStorage.setItem("resumeQuestions", JSON.stringify(questions));
       localStorage.setItem("resumeAnswers", JSON.stringify(answers));
       localStorage.setItem("resumeRole", role);
 
       alert("✅ Questions and answers saved. You can now start your voice interview.");
     } catch (err) {
-      alert("❌ Failed to generate questions.");
+      alert("❌ Failed to generate questions. Check if the file is a valid PDF.");
       console.error(err);
     } finally {
       setLoading(false);
@@ -60,7 +63,9 @@ const UploadResume = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.post("http://localhost:5000/api/upload/review", formData, {
+      
+      // 3. Localhost changed to Live URL with backticks
+      const res = await axios.post(`${API_BASE_URL}/api/upload/review`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -70,7 +75,7 @@ const UploadResume = () => {
       setReviewResult(res.data.review);
       setRating(res.data.rating);
     } catch (err) {
-      alert("❌ Review failed.");
+      alert("❌ Review failed. Backend might be waking up, try again in 30s.");
       console.error(err);
     }
   };
@@ -83,70 +88,72 @@ const UploadResume = () => {
       {/* Upload Form */}
       <form
         onSubmit={handleUpload}
-        className="bg-neutral-900 border border-white/10 p-6 rounded-2xl space-y-4 w-full max-w-md"
+        className="bg-neutral-900 border border-white/10 p-6 rounded-2xl space-y-4 w-full max-w-md shadow-xl"
       >
-        <h2 className="text-2xl font-bold">Upload Your Resume</h2>
+        <h2 className="text-2xl font-bold text-indigo-400">Upload Your Resume</h2>
 
         <input
           type="file"
           accept=".pdf"
           onChange={(e) => setFile(e.target.files[0])}
-          className="w-full text-white file:bg-white file:text-black file:font-bold file:px-4 file:py-2 file:rounded file:cursor-pointer"
+          className="w-full text-white file:bg-white file:text-black file:font-bold file:px-4 file:py-2 file:rounded file:cursor-pointer hover:file:bg-gray-200 transition"
         />
 
         <input
           type="text"
-          placeholder="Enter target role"
+          placeholder="Enter target role (e.g. SDE-1)"
           value={role}
           onChange={(e) => setRole(e.target.value)}
-          className="w-full p-3 rounded-md bg-neutral-800 border border-white/10 text-white"
+          className="w-full p-3 rounded-md bg-neutral-800 border border-white/10 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
         />
 
         <button
           type="submit"
-          className="w-full py-3 bg-white text-black font-bold uppercase rounded hover:bg-gray-300 transition"
+          disabled={loading}
+          className="w-full py-3 bg-white text-black font-bold uppercase rounded hover:bg-indigo-500 hover:text-white transition-all disabled:opacity-50"
         >
-          {loading ? "Processing..." : "Generate Questions"}
+          {loading ? "Processing PDF..." : "Generate Questions"}
         </button>
       </form>
 
-      {/* Resume Review Button */}
-      <button
-        onClick={handleReview}
-        className="w-full max-w-md mt-4 py-3 bg-purple-500 text-white font-bold uppercase rounded hover:bg-purple-600 transition"
-      >
-        Review Resume
-      </button>
+      {/* Action Buttons */}
+      <div className="w-full max-w-md flex flex-col gap-3 mt-4">
+        <button
+          onClick={handleReview}
+          className="py-3 bg-purple-600 text-white font-bold uppercase rounded hover:bg-purple-700 shadow-lg shadow-purple-900/20 transition"
+        >
+          AI Resume Review
+        </button>
 
-      {/* Voice Interview Button */}
-      <button
-        onClick={() => navigate("/voice-interview")}
-        className="w-full max-w-md mt-4 py-3 bg-blue-500 text-white font-bold uppercase rounded hover:bg-blue-600 transition"
-      >
-        Start Voice Interview
-      </button>
+        <button
+          onClick={() => navigate("/voice-interview")}
+          className="py-3 bg-blue-600 text-white font-bold uppercase rounded hover:bg-blue-700 shadow-lg shadow-blue-900/20 transition"
+        >
+          Start Voice Interview
+        </button>
+      </div>
 
       {/* Review Result */}
       {reviewResult && (
-        <div className="mt-6 bg-neutral-900 p-6 rounded-xl border border-white/10 max-w-3xl w-full">
-          <h2 className="text-xl font-bold mb-2">Resume Review:</h2>
-          <pre className="text-gray-200 whitespace-pre-wrap">{reviewResult}</pre>
+        <div className="mt-6 bg-neutral-900 p-6 rounded-xl border border-white/10 max-w-3xl w-full animate-in slide-in-from-bottom-4 duration-500">
+          <h2 className="text-xl font-bold mb-2 text-purple-400">Resume Review:</h2>
+          <pre className="text-gray-200 whitespace-pre-wrap font-sans">{reviewResult}</pre>
         </div>
       )}
 
       {/* Resume Rating */}
       {rating && (
-        <div className="mt-4 bg-green-900 p-4 rounded-xl border border-green-600 max-w-3xl w-full">
-          <h2 className="text-xl font-bold mb-2 text-green-300">AI Resume Rating:</h2>
-          <p className={`text-3xl font-extrabold ${ratingColor}`}>{rating} / 10</p>
+        <div className="mt-4 bg-green-900/30 p-4 rounded-xl border border-green-600/50 max-w-3xl w-full text-center">
+          <h2 className="text-xl font-bold mb-2 text-green-300">AI Resume Score:</h2>
+          <p className={`text-5xl font-extrabold ${ratingColor}`}>{rating} / 10</p>
         </div>
       )}
 
-      {/* Generated Questions */}
+      {/* Generated Questions Area */}
       {questions && (
-        <div className="mt-8 bg-neutral-800 p-6 rounded-lg max-w-3xl w-full border border-white/10">
-          <h3 className="text-xl font-bold mb-4">Tailored Interview Questions</h3>
-          <pre className="whitespace-pre-wrap text-gray-300">{questions}</pre>
+        <div className="mt-8 bg-neutral-800 p-6 rounded-lg max-w-3xl w-full border border-white/10 shadow-inner">
+          <h3 className="text-xl font-bold mb-4 text-indigo-300">Tailored Questions for {role}</h3>
+          <pre className="whitespace-pre-wrap text-gray-300 text-sm leading-relaxed">{questions}</pre>
         </div>
       )}
     </div>
