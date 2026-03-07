@@ -70,7 +70,7 @@ const UploadResume = () => {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
-        timeout: 30000,
+        timeout: 15000,
       });
 
       setReviewResult(res.data.review);
