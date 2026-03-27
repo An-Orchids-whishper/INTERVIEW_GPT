@@ -5,7 +5,7 @@ import { useSpeechSynthesis } from "react-speech-kit";
 import { FaceDetection } from "@mediapipe/face_detection";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE_URL = "https://interview-backend-2vew.onrender.com";
+const API_BASE_URL = "https://prepai-pink.vercel.app/";
 
 const VoiceInterview = () => {
   const [questions, setQuestions] = useState([]);
