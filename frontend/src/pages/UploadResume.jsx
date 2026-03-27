@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE_URL = "https://prepai-pink.vercel.app/";
+const API_BASE_URL = "https://prepai-pink.vercel.app";
 
 // Steps: 0 = upload, 1 = uploaded/choose action, 2 = review result, 3 = questions ready
 const STEP = { UPLOAD: 0, READY: 1, REVIEW: 2, QUESTIONS: 3 };

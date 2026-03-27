@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const API_BASE_URL = "https://prepai-pink.vercel.app/";
+const API_BASE_URL = "https://prepai-pink.vercel.app";
 
 const Register = () => {
   const [name, setName] = useState('');

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API_BASE_URL = "https://prepai-pink.vercel.app/";
+const API_BASE_URL = "https://prepai-pink.vercel.app";
 
 const ROLE_SUGGESTIONS = [
   "SDE-1", "SDE-2", "Frontend Engineer", "Backend Engineer",
