@@ -37,7 +37,7 @@ Output each question on a new line.`;
       {
         headers: {
           "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          "HTTP-Referer": "http://localhost:3000",
+          "HTTP-Referer": "https://interview-gpt-an-orchids-whishpers-projects.vercel.app",
           "X-Title": "InterviewGPT App",
           "Content-Type": "application/json"
         }

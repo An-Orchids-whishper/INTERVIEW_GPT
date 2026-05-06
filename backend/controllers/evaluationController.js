@@ -42,7 +42,7 @@ ${formattedQA}
         headers: {
           Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": "http://localhost:3000",
+          "HTTP-Referer": "https://interview-gpt-an-orchids-whishpers-projects.vercel.app",
           "X-Title": "InterviewGPT",
         },
       }

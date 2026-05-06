@@ -42,7 +42,7 @@ ${extractedText}
       {
         headers: {
           Authorization: `Bearer ${apiKey}`,
-          "HTTP-Referer": "http://localhost:3000",
+          "HTTP-Referer": "https://interview-gpt-an-orchids-whishpers-projects.vercel.app",
           "X-Title": "InterviewGPT App",
           "Content-Type": "application/json",
         }
@@ -107,7 +107,7 @@ ${extractedText}`;
       "https://openrouter.ai/api/v1/chat/completions",
       {
         // 🚀 UPDATED MODEL HERE
-        model: "arcee-ai/trinity-large-preview:free",
+        model: "meta-llama/llama-3.3-70b-instruct:free",
         messages: [
           { role: "system", content: "You are an expert career coach." },
           { role: "user", content: prompt }
@@ -116,7 +116,7 @@ ${extractedText}`;
       {
         headers: {
           Authorization: `Bearer ${apiKey}`,
-          "HTTP-Referer": "http://localhost:3000",
+          "HTTP-Referer": "https://interview-gpt-an-orchids-whishpers-projects.vercel.app",
           "X-Title": "InterviewGPT App",
           "Content-Type": "application/json",
         }
