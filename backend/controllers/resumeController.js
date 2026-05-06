@@ -1,6 +1,9 @@
 const pdfParse = require("pdf-parse");
-const axios = require("axios");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 const Interview = require("../models/Interview");
+
+// Initialize the Gemini API client
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 exports.uploadResumeAndGenerateQuestions = async (req, res) => {
   try {
@@ -24,32 +27,19 @@ Resume:
 ${extractedText}
     `;
 
-    const apiKey = process.env.OPENROUTER_API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: "OpenRouter API key is missing in environment variables." });
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(500).json({ error: "Gemini API key is missing in environment variables." });
     }
 
-    const response = await axios.post(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        // 🚀 UPDATED MODEL HERE
-        model: "meta-llama/llama-3.3-70b-instruct:free", 
-        messages: [
-          { role: "system", content: "You are an expert technical interviewer." },
-          { role: "user", content: prompt }
-        ]
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "HTTP-Referer": "https://interview-gpt-an-orchids-whishpers-projects.vercel.app",
-          "X-Title": "InterviewGPT App",
-          "Content-Type": "application/json",
-        }
-      }
-    );
+    // Select the model and assign the system role
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+      systemInstruction: "You are an expert technical interviewer."
+    });
 
-    const output = response.data.choices[0].message.content;
+    // Call the Google API
+    const result = await model.generateContent(prompt);
+    const output = result.response.text();
 
     const qaPairs = output.split(/\nQ\d+:/).slice(1).map(block => {
       const [question, ...rest] = block.trim().split(/\nA\d+:/);
@@ -79,7 +69,7 @@ ${extractedText}
     });
 
   } catch (error) {
-    console.error("🔥 Resume upload error:", error?.response?.data || error.message || error);
+    console.error("🔥 Resume upload error:", error.message || error);
     res.status(500).json({ error: "Failed to generate interview from resume" });
   }
 };
@@ -98,32 +88,19 @@ exports.reviewResume = async (req, res) => {
 Resume:
 ${extractedText}`;
 
-    const apiKey = process.env.OPENROUTER_API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: "OpenRouter API key is missing in environment variables." });
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(500).json({ error: "Gemini API key is missing in environment variables." });
     }
 
-    const response = await axios.post(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        // 🚀 UPDATED MODEL HERE
-        model: "meta-llama/llama-3.3-70b-instruct:free",
-        messages: [
-          { role: "system", content: "You are an expert career coach." },
-          { role: "user", content: prompt }
-        ]
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "HTTP-Referer": "https://interview-gpt-an-orchids-whishpers-projects.vercel.app",
-          "X-Title": "InterviewGPT App",
-          "Content-Type": "application/json",
-        }
-      }
-    );
+    // Select the model and assign the system role
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+      systemInstruction: "You are an expert career coach."
+    });
 
-    const content = response.data.choices[0].message.content;
+    // Call the Google API
+    const result = await model.generateContent(prompt);
+    const content = result.response.text();
 
     const match = content.match(/rating.*?(\d{1,2})\/10/i);
     const rating = match ? parseInt(match[1]) : null;
@@ -141,7 +118,7 @@ ${extractedText}`;
     });
 
   } catch (error) {
-    console.error("🔥 Resume review error:", error?.response?.data || error.message || error);
+    console.error("🔥 Resume review error:", error.message || error);
     res.status(500).json({ error: "Failed to review resume" });
   }
 };

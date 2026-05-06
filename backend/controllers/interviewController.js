@@ -1,6 +1,9 @@
-const axios = require("axios");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 const Interview = require('../models/Interview');
 require("dotenv").config();
+
+// Initialize the Gemini API client
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 exports.generateInterview = async (req, res) => {
   try {
@@ -16,35 +19,19 @@ exports.generateInterview = async (req, res) => {
 Do not include any introductory or concluding text. 
 Output each question on a new line.`;
     
-    console.log("🧠 Prompt to OpenRouter:", prompt);
+    console.log("🧠 Prompt to Gemini:", prompt);
 
-    const response = await axios.post(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        // 🚀 UPDATED MODEL HERE
-        model: "meta-llama/llama-3.3-70b-instruct:free", 
-        messages: [
-          {
-            role: "system",
-            content: "You are an expert interviewer assistant."
-          },
-          {
-            role: "user",
-            content: prompt
-          }
-        ]
-      },
-      {
-        headers: {
-          "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          "HTTP-Referer": "https://interview-gpt-an-orchids-whishpers-projects.vercel.app",
-          "X-Title": "InterviewGPT App",
-          "Content-Type": "application/json"
-        }
-      }
-    );
+    // Select the model and assign the system role
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash", 
+      systemInstruction: "You are an expert interviewer assistant."
+    });
 
-    const questionText = response.data.choices[0].message.content;
+    // Call the Google API
+    const result = await model.generateContent(prompt);
+    
+    // Extract the text from the response
+    const questionText = result.response.text();
     
     // Parses the text, removes empty lines, and cleans up any leading numbers (like "1. ")
     const questions = questionText
@@ -67,10 +54,10 @@ Output each question on a new line.`;
     });
 
   } catch (error) {
-    console.error("🔥 OpenRouter API Error:", error.response?.data || error.message);
+    console.error("🔥 Gemini API Error:", error.message);
     res.status(500).json({
-      error: "OpenRouter API error",
-      message: error.response?.data || error.message
+      error: "Gemini API error",
+      message: error.message
     });
   }
 };
