@@ -33,7 +33,7 @@ ${extractedText}
       "https://openrouter.ai/api/v1/chat/completions",
       {
         // 🚀 UPDATED MODEL HERE
-        model: "arcee-ai/trinity-large-preview:free", 
+        model: "meta-llama/llama-3.3-70b-instruct:free", 
         messages: [
           { role: "system", content: "You are an expert technical interviewer." },
           { role: "user", content: prompt }
@@ -107,7 +107,7 @@ ${extractedText}`;
       "https://openrouter.ai/api/v1/chat/completions",
       {
         // 🚀 UPDATED MODEL HERE
-        model: "arcee-ai/trinity-large-preview:free",
+        model: "meta-llama/llama-3.3-70b-instruct:free",
         messages: [
           { role: "system", content: "You are an expert career coach." },
           { role: "user", content: prompt }
