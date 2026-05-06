@@ -42,7 +42,7 @@ ${extractedText}
       {
         headers: {
           Authorization: `Bearer ${apiKey}`,
-          "HTTP-Referer": "http://localhost:3000",
+          "HTTP-Referer": "https://interview-gpt-an-orchids-whishpers-projects.vercel.app",
           "X-Title": "InterviewGPT App",
           "Content-Type": "application/json",
         }
@@ -116,7 +116,7 @@ ${extractedText}`;
       {
         headers: {
           Authorization: `Bearer ${apiKey}`,
-          "HTTP-Referer": "http://localhost:3000",
+          "HTTP-Referer": "https://interview-gpt-an-orchids-whishpers-projects.vercel.app",
           "X-Title": "InterviewGPT App",
           "Content-Type": "application/json",
         }
