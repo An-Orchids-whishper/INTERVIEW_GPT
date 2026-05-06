@@ -13,13 +13,28 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 🚀 MongoDB connection (UPDATED FOR VERCEL)
-mongoose.connect(process.env.MONGO_URI, {
-  serverSelectionTimeoutMS: 5000, // Fails quickly if connection drops rather than hanging
-  family: 4 // 👈 Forces IPv4 to bypass the Vercel Node 18+ DNS bug
-})
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+// 🚀 MongoDB connection (VERCEL OPTIMIZED)
+const connectDB = async () => {
+  // Agar connection pehle se hai, toh naya mat banao
+  if (mongoose.connection.readyState >= 1) {
+    console.log("✅ Using existing MongoDB connection");
+    return;
+  }
+
+  try {
+    await mongoose.connect(process.env.MONGO_URI, {
+      serverSelectionTimeoutMS: 5000, 
+      family: 4, // 👈 Forces IPv4 to bypass the Vercel Node 18+ DNS bug
+      maxPoolSize: 10, // 👈 Prevents MongoDB free tier from being overwhelmed
+    });
+    console.log("✅ MongoDB newly connected");
+  } catch (err) {
+    console.error("❌ MongoDB connection error:", err);
+  }
+};
+
+// Call the database connection function
+connectDB();
 
 // 🔹 Base route
 app.get("/", (req, res) => {
