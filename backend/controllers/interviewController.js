@@ -23,7 +23,7 @@ Output each question on a new line.`;
 
     // Select the model and assign the system role
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash", 
+      model: "gemini-2.0-flash-lite", 
       systemInstruction: "You are an expert interviewer assistant."
     });
 
